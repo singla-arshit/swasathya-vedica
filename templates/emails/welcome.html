@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to {{ site_name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #0d6efd;
+            margin: 0;
+        }
+        .content {
+            padding: 0 20px 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0d6efd;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+            margin-top: 20px;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to {{ site_name }}!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hello {{ user.first_name|default:user.username }},</p>
+            
+            <p>Thank you for signing up for {{ site_name }}! We're excited to have you on board.</p>
+            
+            <p>With {{ site_name }}, you can:</p>
+            <ul>
+                <li>Get instant health predictions based on your symptoms</li>
+                <li>Access personalized health recommendations</li>
+                <li>Track your health history and predictions</li>
+                <li>Receive updates on health tips and information</li>
+            </ul>
+            
+            <div class="highlight">
+                <p>Your account is now active and ready to use. You can log in with your credentials at any time.</p>
+            </div>
+            
+            <p>If you have any questions or need assistance, feel free to reply to this email or contact our support team at {{ support_email }}.</p>
+            
+            <p>Best regards,<br>The {{ site_name }} Team</p>
+            
+            <a href="{{ site_url }}" class="button">Get Started</a>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; {% now "Y" %} {{ site_name }}. All rights reserved.</p>
+            <p>You're receiving this email because you signed up for an account on {{ site_name }}.</p>
+            <p><a href="{{ site_url }}/unsubscribe" style="color: #6c757d;">Unsubscribe</a> | <a href="{{ site_url }}/privacy" style="color: #6c757d;">Privacy Policy</a></p>
+        </div>
+    </div>
+</body>
+</html>

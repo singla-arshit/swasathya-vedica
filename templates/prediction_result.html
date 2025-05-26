@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}Prediction Result - Health Predictor{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Result Card -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">Prediction Result</h2>
+                    <span class="badge bg-primary">{{ confidence }}% Confidence</span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="display-4 me-3 text-primary">
+                                    <i class="fas fa-stethoscope"></i>
+                                </div>
+                                <div>
+                                    <h3 class="mb-0">{{ disease }}</h3>
+                                    <p class="text-muted mb-0">Based on your symptoms</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <h4 class="mb-3">Description</h4>
+                            <p>{{ description }}</p>
+                            
+                            <div class="alert alert-warning" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Important:</strong> This is not a substitute for professional medical advice. Please consult a healthcare provider for proper diagnosis and treatment.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Symptoms Card -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-dark">
+                    <h3 class="h5 mb-0">Symptoms Reported</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap">
+                        {% for symptom in symptoms %}
+                        <span class="badge bg-secondary me-2 mb-2 p-2">
+                            <i class="fas fa-check-circle me-1"></i>{{ symptom }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommendations Tabs -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-dark">
+                    <h3 class="h5 mb-0">Recommendations</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="recommendationTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="precautions-tab" data-bs-toggle="tab" data-bs-target="#precautions" type="button" role="tab" aria-controls="precautions" aria-selected="true">
+                                <i class="fas fa-shield-alt me-1"></i>Precautions
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="medications-tab" data-bs-toggle="tab" data-bs-target="#medications" type="button" role="tab" aria-controls="medications" aria-selected="false">
+                                <i class="fas fa-pills me-1"></i>Medications
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="diet-tab" data-bs-toggle="tab" data-bs-target="#diet" type="button" role="tab" aria-controls="diet" aria-selected="false">
+                                <i class="fas fa-utensils me-1"></i>Diet
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="workout-tab" data-bs-toggle="tab" data-bs-target="#workout" type="button" role="tab" aria-controls="workout" aria-selected="false">
+                                <i class="fas fa-running me-1"></i>Exercise
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="recommendationTabsContent">
+                        <!-- Precautions Tab -->
+                        <div class="tab-pane fade show active" id="precautions" role="tabpanel" aria-labelledby="precautions-tab">
+                            {% if precautions %}
+                                <ul class="list-group list-group-flush">
+                                    {% for precaution in precautions %}
+                                        {% if precaution %}
+                                            <li class="list-group-item bg-transparent text-white">
+                                                <i class="fas fa-check-circle text-success me-2"></i>{{ precaution }}
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">No specific precautions available for this condition.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Medications Tab -->
+                        <div class="tab-pane fade" id="medications" role="tabpanel" aria-labelledby="medications-tab">
+                            {% if medication %}
+                                <div class="alert alert-info mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Note:</strong> Only take medications as prescribed by your doctor.
+                                </div>
+                                <div class="card bg-transparent">
+                                    <div class="card-body">
+                                        {{ medication|linebreaks }}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No medication information available for this condition.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Diet Tab -->
+                        <div class="tab-pane fade" id="diet" role="tabpanel" aria-labelledby="diet-tab">
+                            {% if diet %}
+                                <div class="card bg-transparent">
+                                    <div class="card-body">
+                                        {{ diet|linebreaks }}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No diet recommendations available for this condition.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Workout Tab -->
+                        <div class="tab-pane fade" id="workout" role="tabpanel" aria-labelledby="workout-tab">
+                            {% if workout %}
+                                <div class="card bg-transparent">
+                                    <div class="card-body">
+                                        {% for w in workout %}
+                                            <p>{{ w }}</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No exercise recommendations available for this condition.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'core:predict' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-redo me-2"></i>New Prediction
+                </a>
+                <div>
+                    <button class="btn btn-outline-secondary me-2" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Results
+                    </button>
+                    <a href="{% url 'core:home' %}" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize all tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Initialize tabs
+    var tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabEls.forEach(function(tabEl) {
+        tabEl.addEventListener('click', function (event) {
+            event.preventDefault();
+            var tab = new bootstrap.Tab(tabEl);
+            tab.show();
+        });
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Base text colors */
+    body {
+        color: #e9ecef !important;
+    }
+    
+    /* Card text */
+    .card, 
+    .card * {
+        color: #e9ecef !important;
+    }
+    
+    /* Headers */
+    h1, h2, h3, h4, h5, h6,
+    .h1, .h2, .h3, .h4, .h5, .h6 {
+        color: #ffffff !important;
+    }
+    
+    /* Text elements */
+    p, li, td, th, div, span {
+        color: #e9ecef !important;
+    }
+    
+    /* Muted text */
+    .text-muted {
+        color: #adb5bd !important;
+    }
+    
+    /* List items */
+    .list-group-item {
+        background-color: transparent !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        color: #e9ecef !important;
+    }
+    
+    /* Tabs */
+    .nav-tabs {
+        border-bottom-color: #444 !important;
+    }
+    
+    .nav-tabs .nav-link {
+        color: #adb5bd !important;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #ffffff !important;
+        background-color: #2d2d2d !important;
+        border-color: #444 #444 #2d2d2d !important;
+    }
+    
+    /* Alerts */
+    .alert {
+        color: #e9ecef !important;
+    }
+    
+    .alert-warning {
+        background-color: #664d03 !important;
+        border-color: #ffda6a !important;
+    }
+    
+    .alert-info {
+        background-color: #055160 !important;
+        border-color: #6ea8fe !important;
+    }
+    
+    /* Print styles */
+    @media print {
+        .navbar, .footer, .btn, .nav-tabs {
+            display: none !important;
+        }
+        .card {
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+        }
+        .card-header {
+            background-color: #f8f9fa !important;
+            color: #000 !important;
+        }
+        body {
+            background-color: white !important;
+            color: black !important;
+        }
+        .tab-pane {
+            display: block !important;
+            opacity: 1 !important;
+        }
+        .tab-content > .tab-pane {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    }
+    .nav-tabs .nav-link {
+        color: var(--light-color);
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        background-color: transparent;
+        border-color: var(--primary-color);
+        border-bottom-color: transparent;
+    }
+</style>
+{% endblock %}

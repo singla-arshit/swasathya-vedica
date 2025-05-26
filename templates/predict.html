@@ -1,0 +1,759 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Predict Health Condition - Health Predictor{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg mb-5">
+                <div class="card-header bg-dark text-center py-3">
+                    <h2 class="h4 mb-0">Health Condition Predictor</h2>
+                    <p class="text-muted mb-0">Enter your symptoms to get a prediction</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" id="predictionForm">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-white">Select Patient's Symptoms below 👇</h5>
+                            
+                            <!-- Hidden symptom inputs will be added here by JavaScript -->
+                            <div id="hiddenInputsContainer"></div>
+                            
+                            <div class="form-group mb-4">
+                                <div class="position-relative">
+                                    <div class="input-group">
+                                        <input type="text" 
+                                               class="form-control form-control-lg bg-dark text-white border-secondary" 
+                                               id="symptomSearch" 
+                                               placeholder="Type a symptom..." 
+                                               autocomplete="off"
+                                               style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                        <button class="btn btn-primary" type="button" id="addSymptomBtn" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                            <i class="fas fa-plus me-1"></i> Add
+                                        </button>
+                                    </div>
+                                    <div id="symptomDropdown" class="dropdown-menu w-100 mt-1" style="display: none; max-height: 300px; overflow-y: auto;">
+                                        <!-- Search results will appear here -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Selected Symptoms -->
+                            <div class="mb-4">
+                                <div class="d-flex flex-wrap align-items-center gap-2" id="selectedSymptoms">
+                                    <!-- Selected symptoms will appear here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Common Symptoms -->
+                            <div class="mb-4">
+                                <h6 class="text-white mb-3">Common Symptoms</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-outline-light btn-sm common-symptom" data-symptom="shivering">
+                                        <i class="fas fa-thermometer-empty me-1"></i> Shivering
+                                    </button>
+                                    <button type="button" class="btn btn-outline-light btn-sm common-symptom" data-symptom="stomach_pain">
+                                        <i class="fas fa-heartbeat me-1"></i> Stomach Pain
+                                    </button>
+                                    <button type="button" class="btn btn-outline-light btn-sm common-symptom" data-symptom="nodal_skin_eruptions">
+                                        <i class="fas fa-allergies me-1"></i> Nodal Skin Eruptions
+                                    </button>
+                                    <button type="button" class="btn btn-outline-light btn-sm common-symptom" data-symptom="headache">
+                                        <i class="fas fa-head-side-virus me-1"></i> Headache
+                                    </button>
+                                    <button type="button" class="btn btn-outline-light btn-sm common-symptom" data-symptom="cough">
+                                        <i class="fas fa-lungs-virus me-1"></i> Cough
+                                    </button>
+                                    <button type="button" class="btn btn-outline-light btn-sm common-symptom" data-symptom="fatigue">
+                                        <i class="fas fa-tired me-1"></i> Fatigue
+                                    </button>
+                                    <button type="button" class="btn btn-outline-light btn-sm common-symptom" data-symptom="nausea">
+                                        <i class="fas fa-dizzy me-1"></i> Nausea
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-white">Additional Information</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        <label for="id_age" class="form-label text-white">Age</label>
+                                        <input type="number" name="age" class="form-control bg-dark text-white" id="id_age" placeholder="Your age (optional)">
+                                        <div class="form-text text-white-50">Your age can help improve prediction accuracy.</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        <label for="id_gender" class="form-label text-white">Gender</label>
+                                        <select name="gender" class="form-select bg-dark text-white" id="id_gender">
+                                            <option value="">Select gender (optional)</option>
+                                            <option value="M">Male</option>
+                                            <option value="F">Female</option>
+                                            <option value="O">Other</option>
+                                        </select>
+                                        <div class="form-text text-white-50">Your gender can help improve prediction accuracy.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-group">
+                                    <label for="id_medical_history" class="form-label text-white">Medical History</label>
+                                    <textarea name="medical_history" rows="4" class="form-control bg-dark text-white" id="id_medical_history" placeholder="Any relevant medical history, allergies, or additional information..."></textarea>
+                                    <div class="form-text text-white-50">Optional. Any additional information that might help with diagnosis.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="predictBtn">
+                                <i class="fas fa-search me-2"></i>Predict Condition
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Prediction Result (initially hidden) -->
+            <div class="card shadow-lg mb-5 d-none" id="predictionResult">
+                <div class="card-header bg-success text-white">
+                    <h3 class="h5 mb-0">Prediction Result</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="fas fa-clipboard-check fa-4x text-success mb-3"></i>
+                            <h3 class="h4">Predicted Condition</h3>
+                            <p class="lead mb-0" id="predictedCondition">Loading...</p>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <h4 class="h6 mb-0">Recommended Medications</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0" id="medicationsList">
+                                            <li class="mb-2">
+                                                <i class="fas fa-pills text-primary me-2"></i>
+                                                Loading...
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-info text-white">
+                                        <h4 class="h6 mb-0">Diet & Lifestyle</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0" id="dietList">
+                                            <li class="mb-2">
+                                                <i class="fas fa-utensils text-info me-2"></i>
+                                                Loading...
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Important:</strong> This is not a substitute for professional medical advice. Please consult a healthcare provider for proper diagnosis and treatment.
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button class="btn btn-outline-secondary" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>Print Results
+                            </button>
+                            <a href="{% url 'core:home' %}" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Back to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Symptom Badges */
+    .symptom-badge {
+        display: inline-flex;
+        align-items: center;
+        background-color: #dc3545;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        margin: 0.2rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .symptom-badge:hover {
+        background-color: #c82333;
+    }
+    
+    .remove-symptom {
+        display: inline-block;
+        margin-left: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        opacity: 0.8;
+    }
+    
+    .remove-symptom:hover {
+        opacity: 1;
+    }
+    
+    /* Search Input */
+    #symptomSearch {
+        border: 1px solid #495057;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    #symptomSearch:focus {
+        border-color: #4a6cf7;
+        box-shadow: 0 0 0 0.25rem rgba(74, 108, 247, 0.25);
+    }
+    
+    /* Dropdown Menu */
+    #symptomDropdown {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: #2d3748;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    #symptomDropdown .dropdown-item {
+        color: #e2e8f0;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    #symptomDropdown .dropdown-item:hover, 
+    #symptomDropdown .dropdown-item:focus {
+        background-color: #4a5568;
+        color: #ffffff;
+    }
+    
+    /* Common Symptoms */
+    #commonSymptoms {
+        gap: 0.5rem;
+    }
+    
+    #commonSymptoms .btn {
+        transition: all 0.2s ease;
+    }
+    
+    #commonSymptoms .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* No Symptoms Text */
+    #noSymptomsText {
+        font-style: italic;
+        opacity: 0.7;
+    }
+    /* Symptom dropdown styles */
+    #symptomDropdown {
+        position: absolute;
+        z-index: 1000;
+        width: 100%;
+        background-color: #2c3034;
+        border: 1px solid #444;
+        border-radius: 0.25rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    #symptomDropdown .dropdown-item {
+        color: #f8f9fa;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    #symptomDropdown .dropdown-item:hover {
+        background-color: #3d4144;
+        color: #fff;
+    }
+    
+    #symptomDropdown .dropdown-item:active {
+        background-color: #2c3034;
+    }
+    
+    .symptom-option {
+        transition: all 0.2s;
+    }
+    
+    .symptom-option:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 0.25rem;
+    }
+    .form-control, .form-select {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(0, 229, 255, 0.25);
+    }
+    
+    .form-check-input {
+        background-color: #2d2d2d;
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .symptom-badge {
+        background-color: rgba(44, 62, 80, 0.8);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .symptom-badge:hover {
+        background-color: #2c3e50;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .symptom-badge i.fa-check-circle {
+        margin-right: 6px;
+        color: #4caf50;
+        font-size: 0.9em;
+    }
+    
+    .symptom-badge .remove-symptom {
+        margin-left: 8px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.5);
+        background: none;
+        border: none;
+        padding: 2px 0 2px 6px;
+        display: inline-flex;
+        align-items: center;
+        transition: color 0.2s;
+    }
+    
+    .symptom-badge .remove-symptom:hover {
+        color: #ff6b6b;
+        background: none;
+    }
+    
+    .symptom-badge .remove-symptom i {
+        font-size: 0.8em;
+    }
+    
+    #selectedSymptoms {
+        min-height: 50px;
+        padding: 10px;
+        border-radius: 6px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // List of all available symptoms (from the Django model)
+    const symptomsList = [
+        'itching', 'skin_rash', 'nodal_skin_eruptions', 'continuous_sneezing',
+        'shivering', 'chills', 'joint_pain', 'stomach_pain', 'acidity',
+        'ulcers_on_tongue', 'muscle_wasting', 'vomiting', 'burning_micturition',
+        'spotting_urination', 'fatigue', 'weight_gain', 'anxiety',
+        'cold_hands_and_feets', 'mood_swings', 'weight_loss', 'restlessness',
+        'lethargy', 'patches_in_throat', 'irregular_sugar_level', 'cough',
+        'high_fever', 'sunken_eyes', 'breathlessness', 'sweating',
+        'dehydration', 'indigestion', 'headache', 'yellowish_skin',
+        'dark_urine', 'nausea', 'loss_of_appetite', 'pain_behind_the_eyes',
+        'back_pain', 'constipation', 'abdominal_pain', 'diarrhoea',
+        'mild_fever', 'yellow_urine', 'yellowing_of_eyes', 'acute_liver_failure',
+        'fluid_overload', 'swelling_of_stomach', 'swelled_lymph_nodes',
+        'malaise', 'blurred_and_distorted_vision', 'phlegm',
+        'throat_irritation', 'redness_of_eyes', 'sinus_pressure',
+        'runny_nose', 'congestion', 'chest_pain', 'weakness_in_limbs',
+        'fast_heart_rate', 'pain_during_bowel_movements', 'pain_in_anal_region',
+        'bloody_stool', 'irritation_in_anus', 'neck_pain', 'dizziness',
+        'cramps', 'bruising', 'obesity', 'swollen_legs',
+        'swollen_blood_vessels', 'puffy_face_and_eyes', 'enlarged_thyroid',
+        'brittle_nails', 'swollen_extremeties', 'excessive_hunger'
+    ];
+
+    // Format symptom name for display (convert underscores to spaces and capitalize words)
+    function formatSymptomName(symptom) {
+        return symptom.split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+
+    // Create a symptom badge element
+    function createSymptomBadge(symptomId, symptomName) {
+        const badge = document.createElement('div');
+        badge.className = 'symptom-badge';
+        badge.dataset.symptomId = symptomId;
+        badge.innerHTML = `
+            ${symptomName} <span class="remove-symptom">×</span>
+        `;
+        return badge;
+    }
+
+    // Add a symptom to the selected list
+    function addSymptom(symptomId) {
+        // Check if already added
+        if (document.querySelector(`.symptom-badge[data-symptom-id="${symptomId}"]`)) {
+            return;
+        }
+        
+        const selectedSymptoms = document.getElementById('selectedSymptoms');
+        const displayName = formatSymptomName(symptomId);
+        
+        // Create and append the badge
+        const badge = createSymptomBadge(symptomId, displayName);
+        selectedSymptoms.appendChild(badge);
+        
+        // Add remove functionality
+        const removeBtn = badge.querySelector('.remove-symptom');
+        removeBtn.addEventListener('click', function() {
+            badge.remove();
+            updateHiddenInputs();
+        });
+        
+        // Update hidden inputs
+        updateHiddenInputs();
+    }
+    
+    // Update hidden inputs for form submission
+    function updateHiddenInputs() {
+        const hiddenInputsContainer = document.getElementById('hiddenInputsContainer');
+        hiddenInputsContainer.innerHTML = '';
+        
+        // Get all selected symptoms
+        const selectedBadges = document.querySelectorAll('.symptom-badge');
+        
+        // Create hidden inputs for each selected symptom
+        selectedBadges.forEach(badge => {
+            const symptomId = badge.dataset.symptomId;
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'symptoms';
+            input.value = symptomId;
+            hiddenInputsContainer.appendChild(input);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('predictionForm');
+        const symptomSearch = document.getElementById('symptomSearch');
+        const symptomDropdown = document.getElementById('symptomDropdown');
+        const addSymptomBtn = document.getElementById('addSymptomBtn');
+        const predictBtn = document.getElementById('predictBtn');
+        
+        // Handle common symptom buttons
+        document.querySelectorAll('.common-symptom').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const symptomId = this.dataset.symptom;
+                addSymptom(symptomId);
+            });
+        });
+        
+        // Handle search input
+        if (symptomSearch) {
+            symptomSearch.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                // Clear previous results
+                symptomDropdown.innerHTML = '';
+                
+                if (searchTerm.length < 2) {
+                    symptomDropdown.style.display = 'none';
+                    return;
+                }
+                
+                // Filter matching symptoms
+                const matches = symptomsList.filter(symptom => 
+                    symptom.includes(searchTerm) || 
+                    formatSymptomName(symptom).toLowerCase().includes(searchTerm)
+                );
+                
+                if (matches.length === 0) {
+                    const noResult = document.createElement('div');
+                    noResult.className = 'dropdown-item text-muted';
+                    noResult.textContent = 'No matching symptoms found';
+                    symptomDropdown.appendChild(noResult);
+                } else {
+                    // Add matching symptoms to dropdown
+                    matches.slice(0, 8).forEach(symptom => {
+                        const displayName = formatSymptomName(symptom);
+                        const item = document.createElement('a');
+                        item.className = 'dropdown-item';
+                        item.href = '#';
+                        item.textContent = displayName;
+                        
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            addSymptom(symptom);
+                            symptomSearch.value = '';
+                            symptomDropdown.style.display = 'none';
+                        });
+                        
+                        symptomDropdown.appendChild(item);
+                    });
+                }
+                
+                symptomDropdown.style.display = matches.length > 0 ? 'block' : 'none';
+            });
+            
+            // Handle Enter key
+            symptomSearch.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const searchTerm = this.value.trim();
+                    
+                    if (searchTerm) {
+                        // Check if search term matches a symptom exactly
+                        const matchingSymptom = symptomsList.find(symptom => 
+                            symptom === searchTerm.toLowerCase().replace(/ /g, '_') ||
+                            formatSymptomName(symptom).toLowerCase() === searchTerm.toLowerCase()
+                        );
+                        
+                        if (matchingSymptom) {
+                            addSymptom(matchingSymptom);
+                            this.value = '';
+                        } else if (symptomDropdown.style.display === 'block') {
+                            // If dropdown is open, click the first item
+                            const firstItem = symptomDropdown.querySelector('.dropdown-item');
+                            if (firstItem && !firstItem.classList.contains('text-muted')) {
+                                firstItem.click();
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!symptomSearch.contains(e.target) && !symptomDropdown.contains(e.target)) {
+                    symptomDropdown.style.display = 'none';
+                }
+            });
+        }
+        
+        // Handle add symptom button
+        if (addSymptomBtn) {
+            addSymptomBtn.addEventListener('click', function() {
+                const searchTerm = symptomSearch.value.trim();
+                if (searchTerm) {
+                    // Check if search term matches a symptom
+                    const matchingSymptom = symptomsList.find(symptom => 
+                        symptom === searchTerm.toLowerCase().replace(/ /g, '_') ||
+                        formatSymptomName(symptom).toLowerCase() === searchTerm.toLowerCase()
+                    );
+                    
+                    if (matchingSymptom) {
+                        addSymptom(matchingSymptom);
+                        symptomSearch.value = '';
+                    } else {
+                        alert('Please select a valid symptom from the list');
+                    }
+                }
+            });
+        }
+        
+        // Handle form submission
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Make sure we have at least one symptom
+                const symptomBadges = document.querySelectorAll('.symptom-badge');
+                if (symptomBadges.length === 0) {
+                    e.preventDefault();
+                    alert('Please add at least one symptom');
+                    return false;
+                }
+                
+                // Update hidden inputs one last time
+                updateHiddenInputs();
+                
+                // Show loading state if predict button exists
+                if (predictBtn) {
+                    predictBtn.disabled = true;
+                    predictBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Predicting...';
+                }
+                
+                return true;
+            });
+        }
+        
+        // Initialize - add any symptoms that might be pre-selected
+        updateHiddenInputs();
+    });
+</script>
+
+<script>
+    // Format symptom name for display (convert underscores to spaces and capitalize words)
+    function formatSymptomName(symptom) {
+        return symptom.split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('predictionForm');
+        const predictBtn = document.getElementById('predictBtn');
+        const predictionResult = document.getElementById('predictionResult');
+        const symptomSearch = document.getElementById('symptomSearch');
+        const symptomDropdown = document.getElementById('symptomDropdown');
+        
+        // Function to check if a symptom is already selected
+        function isSymptomSelected(symptomId) {
+            const checkbox = document.getElementById(symptomId);
+            return checkbox ? checkbox.checked : false;
+        }
+        
+        // Function to select a symptom by its ID
+        function selectSymptom(symptomId) {
+            const checkbox = document.getElementById(symptomId);
+            if (checkbox) {
+                // Only proceed if not already selected
+                if (!checkbox.checked) {
+                    checkbox.checked = true;
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    checkbox.dispatchEvent(event);
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Handle symptom search input
+        if (symptomSearch) {
+            symptomSearch.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                const dropdown = document.getElementById('symptomDropdown');
+                
+                // Clear previous results
+                dropdown.innerHTML = '';
+                
+                if (searchTerm.length < 2) {
+                    dropdown.style.display = 'none';
+                    return;
+                }
+                
+                // Filter symptoms that match the search term and aren't already selected
+                const matchedSymptoms = symptomsList.filter(symptom => {
+                    const symptomId = 'symptom_' + symptom;
+                    return symptom.toLowerCase().includes(searchTerm) && !isSymptomSelected(symptomId);
+                });
+                
+                if (matchedSymptoms.length === 0) {
+                    const noResult = document.createElement('div');
+                    noResult.className = 'dropdown-item text-muted';
+                    noResult.textContent = 'No matching symptoms found';
+                    dropdown.appendChild(noResult);
+                } else {
+                    // Add matched symptoms to dropdown
+                    matchedSymptoms.slice(0, 10).forEach(symptom => {
+                        const displayName = formatSymptomName(symptom);
+                        const symptomId = 'symptom_' + symptom;
+                        
+                        const item = document.createElement('a');
+                        item.className = 'dropdown-item d-flex justify-content-between align-items-center';
+                        item.href = '#';
+                        
+                        // Check if already selected (shouldn't happen due to filter, but just in case)
+                        const isSelected = isSymptomSelected(symptomId);
+                        
+                        item.innerHTML = `
+                            ${displayName}
+                            ${isSelected ? '<i class="fas fa-check text-success"></i>' : ''}
+                        `;
+                        
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            
+                            // Select the symptom
+                            if (selectSymptom(symptomId)) {
+                                // Clear search and hide dropdown
+                                symptomSearch.value = '';
+                                symptomSearch.focus();
+                                dropdown.style.display = 'none';
+                                
+                                // Update the display
+                                updateSelectedSymptoms();
+                            }
+                        });
+                        
+                        dropdown.appendChild(item);
+                    });
+                }
+                
+                // Show dropdown if there are results
+                if (matchedSymptoms.length > 0) {
+                    dropdown.style.display = 'block';
+                } else {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!symptomSearch.contains(e.target) && !symptomDropdown.contains(e.target)) {
+                    symptomDropdown.style.display = 'none';
+                }
+            });
+            
+            // Prevent form submission when pressing enter in search box
+            symptomSearch.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // If there are results, select the first one
+                    const firstItem = symptomDropdown.querySelector('.dropdown-item:not(.text-muted)');
+                    if (firstItem) {
+                        firstItem.click();
+                    }
+                }
+            });
+        }
+        
+        // Handle form submission
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Show loading state
+                predictBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Predicting...';
+                predictBtn.disabled = true;
+                
+                // Make sure all selected symptoms are properly included in the form
+                updateSelectedSymptoms();
+                
+                // Submit the form
+                return true;
+            });
+        }
+    });
+</script>
+{% endblock %}

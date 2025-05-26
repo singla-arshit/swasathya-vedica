@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance in Progress - {{ SITE_NAME }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .maintenance-container {
+            max-width: 600px;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .maintenance-icon {
+            font-size: 4rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #6c757d;
+        }
+        .countdown {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #0d6efd;
+            margin: 20px 0;
+        }
+        .social-links {
+            margin-top: 30px;
+        }
+        .social-links a {
+            color: #6c757d;
+            font-size: 1.5rem;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        .social-links a:hover {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .admin-login {
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="maintenance-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        <h1>We'll Be Back Soon!</h1>
+        <p>We're currently performing scheduled maintenance to improve our services. We apologize for any inconvenience and appreciate your patience.</p>
+        
+        <div class="countdown" id="countdown">
+            Maintenance in Progress...
+        </div>
+        
+        <p>We expect to be back online in:</p>
+        
+        <div class="progress" style="height: 10px; margin: 20px 0;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%"></div>
+        </div>
+        
+        <div class="social-links">
+            <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        </div>
+        
+        {% if user.is_staff %}
+        <div class="admin-login">
+            <a href="{% url 'admin:index' %}" class="btn btn-sm btn-outline-primary">Admin Login</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Simple countdown timer (example: 1 hour from now)
+        const countDownDate = new Date();
+        countDownDate.setHours(countDownDate.getHours() + 1);
+        
+        const x = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+            
+            // Calculate time units
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            // Display the result
+            document.getElementById("countdown").innerHTML = 
+                hours + "h " + minutes + "m " + seconds + "s";
+                
+            // If the countdown is finished, display a message
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "We're almost done!";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

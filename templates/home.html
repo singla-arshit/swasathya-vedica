@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Health Predictor{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Background -->
+<div class="hero-section" style="background-image: url('{% static 'images/swastik_image_2.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+    <div class="container py-5" style="background-color: rgba(0, 0, 0, 0.6); border-radius: 10px;">
+        <div class="row align-items-center my-5">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4 text-white">Your Personal Health Assistant</h1>
+                <p class="lead mb-4 text-white">Get instant predictions about potential health conditions based on your symptoms. Our AI-powered platform helps you understand possible ailments and provides recommendations.</p>
+                
+                {% if user.is_authenticated %}
+                    <a href="{% url 'core:predict' %}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-stethoscope me-2"></i>Check Symptoms
+                    </a>
+                    <a href="{% url 'core:prediction_history' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-history me-2"></i>View History
+                    </a>
+                {% else %}
+                    <a href="{% url 'core:register' %}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-user-plus me-2"></i>Get Started
+                    </a>
+                    <a href="{% url 'core:login' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="{% static 'images/health-illustration.svg' %}" alt="Health Illustration" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+
+    <!-- Features Section -->
+    <div class="row my-5 py-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="text-muted">Simple steps to get health insights</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 animate-fade-in" style="animation-delay: 0.1s;">
+                <div class="card-body text-center p-4">
+                    <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-user-plus fa-2x text-primary"></i>
+                    </div>
+                    <h4 class="card-title">1. Create Account</h4>
+                    <p class="card-text text-muted">Sign up for free and create your personal health profile to get started.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 animate-fade-in" style="animation-delay: 0.3s;">
+                <div class="card-body text-center p-4">
+                    <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-stethoscope fa-2x text-primary"></i>
+                    </div>
+                    <h4 class="card-title">2. Enter Symptoms</h4>
+                    <p class="card-text text-muted">Describe your symptoms and provide relevant health information.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 animate-fade-in" style="animation-delay: 0.5s;">
+                <div class="card-body text-center p-4">
+                    <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-chart-line fa-2x text-primary"></i>
+                    </div>
+                    <h4 class="card-title">3. Get Insights</h4>
+                    <p class="card-text text-muted">Receive instant predictions and personalized recommendations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="row my-5 py-5">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <img src="{% static 'images/about-illustration.svg' %}" alt="About Health Predictor" class="img-fluid rounded">
+        </div>
+        <div class="col-lg-6 d-flex align-items-center">
+            <div>
+                <h2 class="fw-bold mb-4">About Health Predictor</h2>
+                <p class="lead">Empowering you with health insights through AI technology.</p>
+                <p>Health Predictor is an innovative platform that leverages artificial intelligence to help you understand potential health conditions based on your symptoms. Our goal is to provide you with reliable information and recommendations to support your health journey.</p>
+                <p>Please note that our service is not a substitute for professional medical advice. Always consult with a healthcare provider for medical concerns.</p>
+                <div class="mt-4">
+                    <a href="#" class="btn btn-outline-light me-2">Learn More</a>
+                    <a href="{% url 'core:contact' %}" class="btn btn-primary">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any page-specific JavaScript here
+    document.addEventListener('DOMContentLoaded', function() {
+        const animateOnScroll = function() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.3;
+                
+                if (elementPosition < screenPosition) {
+                    element.classList.add('animate-fade-in');
+                }
+            });
+        };
+        
+        animateOnScroll();
+        window.addEventListener('scroll', animateOnScroll);
+    });
+</script>
+{% endblock %}
+

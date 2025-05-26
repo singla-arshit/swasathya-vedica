@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}My Profile - Health Predictor{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg mb-5">
+                <div class="card-header bg-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0">My Profile</h2>
+                        <a href="{% url 'password_change' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-key me-1"></i>Change Password
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <div class="position-relative d-inline-block mb-3">
+                                <img src="{{ user.profile.image.url }}" 
+                                     class="rounded-circle border border-4 border-primary" 
+                                     alt="Profile Picture" 
+                                     style="width: 150px; height: 150px; object-fit: cover;">
+                                <button class="btn btn-primary btn-sm rounded-circle position-absolute" 
+                                        style="bottom: 10px; right: 10px;"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#changePictureModal">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                            <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                            <p class="text-muted mb-2">Member since {{ user.date_joined|date:"F Y" }}</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <span class="badge bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-chart-line me-1"></i>
+                                    {{ prediction_count }} Predictions
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        {{ u_form.first_name|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ u_form.last_name|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    {{ u_form.email|as_crispy_field }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ p_form.bio|as_crispy_field }}
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        {{ p_form.date_of_birth|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ p_form.gender|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        {{ p_form.blood_group|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ p_form.phone_number|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    {{ p_form.address|as_crispy_field }}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Save Changes
+                                    </button>
+                                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Preferences -->
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-dark">
+                    <h3 class="h5 mb-0">Account Preferences</h3>
+                </div>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Email Notifications</h6>
+                            <p class="small text-muted mb-0">Receive email updates and notifications</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                            <label class="form-check-label" for="emailNotifications"></label>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Dark Mode</h6>
+                            <p class="small text-muted mb-0">Switch between light and dark theme</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="darkMode" checked>
+                            <label class="form-check-label" for="darkMode"></label>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Two-Factor Authentication</h6>
+                            <p class="small text-muted mb-0">Add an extra layer of security to your account</p>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Enable</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Actions -->
+            <div class="card shadow-sm mb-5 border-danger">
+                <div class="card-header bg-danger bg-opacity-10 text-danger">
+                    <h3 class="h5 mb-0">Danger Zone</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-1">Delete Account</h6>
+                            <p class="small text-muted mb-0">Permanently delete your account and all associated data</p>
+                        </div>
+                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <i class="far fa-trash-alt me-1"></i>Delete Account
+                        </button>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Export Data</h6>
+                            <p class="small text-muted mb-0">Download all your data in a portable format</p>
+                        </div>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-download me-1"></i>Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Picture Modal -->
+<div class="modal fade" id="changePictureModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark border border-primary">
+            <div class="modal-header border-primary">
+                <h5 class="modal-title">Change Profile Picture</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data" id="pictureForm">
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            <img id="imagePreview" 
+                                 src="{{ user.profile.image.url }}" 
+                                 class="img-fluid rounded" 
+                                 style="max-height: 200px;"
+                                 alt="Preview">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Choose a new profile picture</label>
+                        <input class="form-control bg-dark text-white" 
+                               type="file" 
+                               id="image" 
+                               name="image"
+                               accept="image/*">
+                        <div class="form-text text-muted">Recommended size: 300x300 pixels. Max file size: 2MB.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark border border-danger">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title text-danger">Delete Your Account</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="lead">Are you sure you want to delete your account?</p>
+                <p>This action cannot be undone. All your data, including prediction history and profile information, will be permanently deleted.</p>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action is irreversible. Please be certain.
+                </div>
+                <form method="post" action="{% url 'delete_account' %}" id="deleteAccountForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Enter your password to confirm:</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-danger">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="deleteAccountForm" class="btn btn-danger">
+                    <i class="far fa-trash-alt me-1"></i>Delete My Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control, .form-select {
+        background-color: #2d2d2d;
+        border: 1px solid #444;
+        color: #fff;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: #2d2d2d;
+        color: #fff;
+        border-color: #00e5ff;
+        box-shadow: 0 0 0 0.25rem rgba(0, 229, 255, 0.25);
+    }
+    
+    .list-group-item {
+        background-color: transparent;
+        color: #fff;
+        border-color: #444;
+    }
+    
+    .form-check-input {
+        background-color: #2d2d2d;
+        border-color: #444;
+    }
+    
+    .form-check-input:checked {
+        background-color: #00e5ff;
+        border-color: #00e5ff;
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: #00e5ff;
+        border-color: #00e5ff;
+    }
+    
+    .form-switch .form-check-input:focus {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2300e5ff'/%3e%3c/svg%3e");
+    }
+    
+    .form-text {
+        color: #6c757d !important;
+    }
+    
+    .btn-outline-secondary {
+        color: #adb5bd;
+        border-color: #6c757d;
+    }
+    
+    .btn-outline-secondary:hover {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+    
+    .border-danger {
+        border-color: #dc3545 !important;
+    }
+    
+    .text-danger {
+        color: #ff6b6b !important;
+    }
+    
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        border-color: rgba(220, 53, 69, 0.2);
+        color: #ff6b6b;
+    }
+    
+    @media (max-width: 768px) {
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Image preview for profile picture upload
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        if (imageInput && imagePreview) {
+            imageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                    }
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}
