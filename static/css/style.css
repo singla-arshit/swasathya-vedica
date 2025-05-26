@@ -1,0 +1,132 @@
+/* Custom styles for Health Predictor */
+:root {
+    --primary-color: #00e5ff;
+    --dark-color: #121212;
+    --light-color: #f8f9fa;
+    --danger-color: #dc3545;
+    --success-color: #28a745;
+}
+
+body {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #121212 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--primary-color) !important;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.95) !important;
+    transition: color 0.3s;
+}
+
+.nav-link:hover, .nav-link:focus {
+    color: var(--primary-color) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #000000;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #00b8d4;
+    border-color: #00b8d4;
+    color: #000000;
+}
+
+/* Cards */
+.card {
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 229, 255, 0.1);
+}
+
+.card-header {
+    background-color: #252525;
+    border-bottom: 1px solid #444;
+    font-weight: 600;
+}
+
+/* Forms */
+.form-control, .form-select {
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    color: #ffffff;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #2d2d2d;
+    color: #ffffff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(0, 229, 255, 0.25);
+}
+
+/* Alerts */
+.alert {
+    border: none;
+    border-left: 4px solid;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    background-color: #121212 !important;
+    padding: 1.5rem 0;
+}
+
+/* Utility Classes */
+.text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-nav {
+        margin-top: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 1.5rem;
+    }
+}
