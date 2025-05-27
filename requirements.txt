@@ -1,44 +1,44 @@
 # Core Dependencies
-Django==5.2.1
-python-dotenv==1.0.1
-Pillow==10.3.0
+Django
+python-dotenv
+Pillow
 
 # Machine Learning (Python 3.11+ compatible)
-numpy==1.26.4
-pandas==2.1.4
-scikit-learn==1.4.2
-joblib==1.4.2
+numpy
+pandas
+scikit-learn
+joblib
 
 # Database
-psycopg2-binary==2.9.9  # PostgreSQL support
+psycopg2-binary  # PostgreSQL support
 
 # Frontend
-crispy-bootstrap5==2025.4
-django-crispy-forms==2.1
+crispy-bootstrap5
+django-crispy-forms
 
 # Development
-django-debug-toolbar==4.3.0
-python-decouple==3.8
+django-debug-toolbar
+python-decouple
 
 # Security
-django-axes==6.2.0
-django-cors-headers==4.3.1
+django-axes
+django-cors-headers
 
 # Testing
-pytest==8.2.0
-pytest-django==4.8.0
-pytest-cov==5.0.0
+pytest
+pytest-django
+pytest-cov
 
 # Code Quality
-black==24.4.2
-flake8==7.0.0
-isort==5.13.2
+black
+flake8
+isort
 
 # Deployment
-gunicorn==21.2.0
-whitenoise==6.6.0
+gunicorn
+whitenoise
 
 # Documentation
-Sphinx==7.3.7
-sphinx-rtd-theme==2.0.0
+Sphinx
+sphinx-rtd-theme
 
